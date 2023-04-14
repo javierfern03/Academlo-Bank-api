@@ -16,7 +16,7 @@ exports.signup = async (req, res, next) => {
     accountNumber: generateAccountNumber,
   });
 
-  const token = generateJwt(user.id);
+  const token = await generateJwt(user.id);
 
   res.status(200).json({
     status: 'success',

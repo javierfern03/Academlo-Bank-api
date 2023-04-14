@@ -6,9 +6,9 @@ const generateJwt = (id) => {
 
     jwt.sign(
       payload,
-      SECRET_JWT_SEED,
+      process.env.SECRET_JWT_SEED,
       {
-        expiresIn: JWT_EXPIRE_IN,
+        expiresIn: process.env.JWT_EXPIRE_IN,
       },
       (err, token) => {
         if (err) {

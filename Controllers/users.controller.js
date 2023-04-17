@@ -1,17 +1,18 @@
 const User = require('../Models/users.model');
 const bcrypt = require('bcryptjs');
 const generateJwt = require('../utils/jwt');
+const AppError = require('../utils/appError');
+const catchAsync = require('../utils/catchAsync');
 
-exports.signup = async (req, res, next) => {
+exports.signup = catchAsync(async (req, res, next) => {
   const { name, password } = req.body;
   const generateAccountNumber = Math.round(Math.random() * 999999);
 
   const salt = await bcrypt.genSalt(10);
-
-  const encryptedPassword = await bcrypt.hash(password, salt);
+  const encryptedPassword = await bcrypt.hash(password.trim(), salt);
 
   const user = await User.create({
-    name: name.toLowerCase(),
+    name: name.toLowerCase().trim(),
     password: encryptedPassword,
     accountNumber: generateAccountNumber,
   });
@@ -21,12 +22,17 @@ exports.signup = async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     message: 'User has been create successfully',
-    user,
     token,
+    user: {
+      id: user.id,
+      accountNumber: user.accountNumber,
+      name: user.name,
+      amount: user.amount,
+    },
   });
-};
+});
 
-exports.login = async (req, res, next) => {
+exports.login = catchAsync(async (req, res, next) => {
   const { accountNumber, password } = req.body;
 
   const user = await User.findOne({
@@ -37,17 +43,11 @@ exports.login = async (req, res, next) => {
   });
 
   if (!user) {
-    return res.status(400).json({
-      status: 'error',
-      message: 'User not found',
-    });
+    return next(new AppError('User not found', 404));
   }
 
-  if (!(await bcrypt.compare(password, User.password))) {
-    return res.status(401).json({
-      status: 'error',
-      message: 'password incorrect',
-    });
+  if (!(await bcrypt.compare(password, user.password))) {
+    return next(new AppError('incorret', 401));
   }
 
   const token = await generateJwt(user.id);
@@ -55,11 +55,12 @@ exports.login = async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     message: 'User logged',
+    token,
     user: {
       id: user.id,
       name: user.name,
       accountNumber: user.accountNumber,
-      token,
+      amount: user.amount,
     },
   });
-};
+});

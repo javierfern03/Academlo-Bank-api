@@ -2,8 +2,11 @@ const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 
+const AppError = require('./utils/appError');
+const globalErrorHandler = require('./controllers/error.controller');
+
 const userRouter = require('./Routes/users.routes');
-const transfersRouter = require('./Routes/transfers.routes');
+// const transfersRouter = require('./Routes/transfers.routes');
 
 const app = express();
 
@@ -18,11 +21,13 @@ app.use(cors());
 
 app.use('/api/v1/users', userRouter);
 // app.use('/api/v1/transfers', transfersRouter);
+
 app.all('*', (req, res, next) => {
-  return res.status(400).json({
-    status: 'err',
-    message: 'this direction not exist',
-  });
+  return next(
+    new AppError(`cannot find ${req.originalUrl} on this server!`, 404)
+  );
 });
+
+app.use(globalErrorHandler);
 
 module.exports = app;

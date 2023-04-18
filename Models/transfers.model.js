@@ -9,8 +9,8 @@ const Transfer = db.define('transfers', {
     allowNull: false,
   },
   amount: {
-    allowNull: false,
     type: DataTypes.INTEGER,
+    allowNull: false,
   },
   senderUserId: {
     type: DataTypes.INTEGER,

@@ -6,7 +6,7 @@ const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/error.controller');
 
 const userRouter = require('./Routes/users.routes');
-// const transfersRouter = require('./Routes/transfers.routes');
+const transfersRouter = require('./Routes/transfers.routes');
 
 const app = express();
 
@@ -20,7 +20,7 @@ app.use(cors());
 //ROUTES
 
 app.use('/api/v1/users', userRouter);
-// app.use('/api/v1/transfers', transfersRouter);
+app.use('/api/v1/transfers', transfersRouter);
 
 app.all('*', (req, res, next) => {
   return next(

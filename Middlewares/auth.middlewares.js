@@ -1,10 +1,11 @@
 const jwt = require('jsonwebtoken');
 const catchAsync = require('../utils/catchAsync');
-const { token } = require('morgan');
 const AppError = require('../utils/appError');
 const User = require('../Models/users.model');
+const { promisify } = require('util');
 
 exports.protect = catchAsync(async (req, res, next) => {
+  let token;
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
@@ -14,7 +15,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   if (!token) {
     return next(
-      new appError('Ypu are not logged in!, Please log in to get access', 401)
+      new AppError('Ypu are not logged in!, Please log in to get access', 401)
     );
   }
 
@@ -25,11 +26,26 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   const user = User.findOne({
     where: {
-      id: decode.id,
+      id: decoded.id,
       status: 'active',
     },
   });
 
+  if (!user) {
+    return next(
+      new AppError('The owner if this token it not longer available', 401)
+    );
+  }
+
   req.sessionUser = user;
   next();
 });
+
+// exports.userOwnerAccount = catchAsync(async (req, res, next) => {
+//   const { sessionUser } = req;
+
+//   if (sessionUser.id !== user.id) {
+//     return next(new AppError('you are not the account owner', 401));
+//   }
+//   next();
+// });

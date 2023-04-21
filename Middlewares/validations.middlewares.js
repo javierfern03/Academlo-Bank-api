@@ -22,3 +22,18 @@ exports.createUserValidation = [
     .withMessage('Password must be at least 8 characters long'),
   validFields,
 ];
+
+exports.sendTransfer = [
+  body('recipientAccount')
+    .notEmpty()
+    .withMessage('The account number cannot be ampty')
+    .isLength({ min: 6 })
+    .withMessage('The account number must be at least 6 characters long'),
+  body('senderAccount')
+    .notEmpty()
+    .withMessage('The account number cannot be ampty')
+    .isLength({ min: 6 })
+    .withMessage('The account number must be at least 6 characters long'),
+  body('amount').notEmpty().withMessage('The amount cannot be ampty'),
+  validFields,
+];

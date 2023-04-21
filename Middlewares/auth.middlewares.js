@@ -24,7 +24,7 @@ exports.protect = catchAsync(async (req, res, next) => {
     process.env.SECRET_JWT_SEED
   );
 
-  const user = User.findOne({
+  const user = await User.findOne({
     where: {
       id: decoded.id,
       status: 'active',
